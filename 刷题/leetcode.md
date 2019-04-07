@@ -19,3 +19,5 @@
 - 371. 两整数之和
 
 - 412. Fizz Buzz
+
+`https://github.com/qyuhen/book/blob/master/C%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.pdf`
