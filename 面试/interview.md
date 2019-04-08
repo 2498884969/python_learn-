@@ -5,7 +5,7 @@
 - `B-Tree` 的特点(如下为3阶B树)
 - **阶数：**树中所有孩子结点个数的最大值称为该树的阶
 
-![](C:\Users\Administrator\Desktop\python_learn-\面试\pic\1.mysql\3阶B树.png)
+![](.\pic\1.mysql\3阶B树.png)
 
 1. 根节点至少包括两个孩子
 
@@ -25,7 +25,7 @@
 
 ### 1.1 B+-Tree
 
-![](C:\Users\Administrator\Desktop\python_learn-\面试\pic\1.mysql\B+树.png)
+![](.\pic\1.mysql\B+树.png)
 
 **B+树是B树的变体，其基本定义与B树相同除了：**
 
@@ -51,7 +51,7 @@
 - 密集索引文件中的每个搜索码值都对应一个索引值
 - 稀疏索引文件只为索引码的某些值建立索引项
 
-![](C:\Users\Administrator\Desktop\python_learn-\面试\pic\1.mysql\密集索引和稀疏索引的区别.png)
+![](.\pic\1.mysql\密集索引和稀疏索引的区别.png)
 
 密集索引的定义：叶子节点保存的不只是键值，还保存了位于同一行记录里的其他列的信息，由于密集索引决定了表的物理排列顺序，一个表只有一个物理排列顺序，所以一个表只能创建一个密集索引
 
@@ -67,3 +67,5 @@
 - 非主键索引存储相关键位和其对应的主键值，包含两次查找（1.通过辅助索引找到主键索引；2.通过主键索引找到具体数据）
 
 PS:myIsam的索引和数据存放在不同文件中(`.MYI,.MYD`)，而`innodb`的存放在同意文件中(`.idb`)
+
+![](.\pic\1.mysql\索引查找过程.png)
