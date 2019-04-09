@@ -68,8 +68,102 @@
 
 PS:myIsam的索引和数据存放在不同文件中(`.MYI,.MYD`)，而`innodb`的存放在同意文件中(`.idb`)
 
-<<<<<<< HEAD
 ![](./pic/1.mysql/索引查找过程.png)
-=======
-![](.\pic\1.mysql\索引查找过程.png)
->>>>>>> c309b616f0f47aa5172d1a3e6646650e537e8754
+
+## 2.WEB安全
+
+### 1. SQL注入
+
+**SQL注入与防范**
+
+- 通过构造特殊的输入参数传入web应用，直接导致后端执行了恶意`SQL`
+
+- 通常由于程序员未对于输入进行过滤，直接动态拼接SQL产生
+
+- 可以使用开源工具`sqlmap`， `SQLninja` 检测
+
+**案例**
+
+```sql
+-- 创建表
+CREATE TABLE `USER` (
+`id` int NOT NULL AUTO_INCREMENT,
+`name` VARCHAR(45) NULL,
+`email` VARCHAR(45) NULL,
+`password` VARCHAR(45) NULL,
+PRIMARY KEY(`id`)
+);
+
+-- 插入数据
+INSERT INTO user(name,email,password) values(
+'lisi', 'lisi@gmail.com',md5('lisi123')
+);
+```
+
+- python代码
+
+```python
+import MySQLdb
+
+db = MySQLdb.connect(host="127.0.0.1", user='root', passwd='123456', db='demo')
+cur = db.cursor()
+name = input("Enter Name: ")
+print('您输入的用户name是{name}'.format(name=name))
+password = input('Enter password: ')
+print('您输入的密码是：{password}'.format(password=password))
+# 直接拼接SQL
+# sql = "select * from user where name = '" + name + "' and password = md5('" + password + "')"
+sql = "select * from user where name = '{name}' and password = md5('{password}')".\
+    format(name=name, password=password)
+print(sql)
+cur.execute(sql)
+for row in cur.fetchall():
+    print(row)
+
+```
+
+- 直接拼接SQL的输出结果
+
+```shell
+Enter Name: lisi ' -- '
+您输入的用户name是lisi ' -- '
+Enter password: 123
+您输入的密码是：123
+select * from user where name = 'lisi ' -- '' and password = md5('123')
+(1, 'lisi', 'lisi@gmail.com', 'c3cb6d12c40908943b64bc0681af47db')
+```
+
+- 采用字符替换的输出结果
+
+```python
+您输入的用户name是lisi ' -- '
+Enter password: 123
+您输入的密码是：123
+select * from user where name = 'lisi ' -- '' and password = md5('123')
+(1, 'lisi', 'lisi@gmail.com', 'c3cb6d12c40908943b64bc0681af47db')
+
+```
+
+**如何防范SQL注入**
+
+**web安全一大原则：永远不要相信用户的输入**
+
+- 对于输入参数做好类型检查，过滤和转义特殊字符
+- 不要直接拼接SQL，使用ORM可以大大降低SQL注入风险
+- 数据库底层：做好权限管理配置；不要明文存储敏感信息（密码）
+
+### 2.XSS攻击
+
+**XSS（Cross Site Scripting）跨站脚本攻击**
+
+- 恶意用户将未进行转义的代码植入到提供给其他用户使用的页面中，未经转义的恶意代码输出到其他用户的浏览器被执行
+- 用户浏览页面的时候嵌入页面的脚本(js)会被执行，对于用户进行攻击
+- 主要分为两类：反射型（非持久型）、存储型（持久型）
+
+**XSS危害**
+
+- 盗用用户的cookie，获取敏感信息
+- 利用私人账号执行一些违法操作，比如盗取个人或者商业资料，执行一些隐私操作
+- 甚至可以在一些访问量很大的网站上实现DDoS攻击
+
+**XSS防范**
