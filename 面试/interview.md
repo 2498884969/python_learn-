@@ -23,7 +23,7 @@
 
    c. 非叶子节点的指针`P[1],P[2]...P[M]`，其中`P[1]`指向关键字小于`K[1]`的子树，`P[M]`指向关键字大于`K[M-1]`的子树，其它关键字指向`(k_[i-1],k[i])`的子树
 
-### 1.1 B+-Tree
+### 1.2B+-Tree
 
 ![](./pic/1.mysql/B+树.png)
 
@@ -46,7 +46,7 @@
 
    B树在提高了磁盘IO性能的同时并没有解决元素遍历的效率低下的问题，而B+树只需要遍历叶子节点就可以解决对全部关键字信息的扫描，所以对于数据库中频繁使用的range query，B+树有着更高的性能。
 
-### 3. 索引模块
+### 1.3 索引模块
 
 - 密集索引文件中的每个搜索码值都对应一个索引值
 - 稀疏索引文件只为索引码的某些值建立索引项
@@ -72,7 +72,7 @@ PS:myIsam的索引和数据存放在不同文件中(`.MYI,.MYD`)，而`innodb`�
 
 ## 2.WEB安全
 
-### 1. SQL注入
+### 2.1 SQL注入
 
 **SQL注入与防范**
 
@@ -152,7 +152,7 @@ select * from user where name = 'lisi ' -- '' and password = md5('123')
 - 不要直接拼接SQL，使用ORM可以大大降低SQL注入风险
 - 数据库底层：做好权限管理配置；不要明文存储敏感信息（密码）
 
-### 2.XSS攻击
+### 2.2 XSS攻击
 
 **XSS（Cross Site Scripting）跨站脚本攻击**
 
@@ -167,3 +167,55 @@ select * from user where name = 'lisi ' -- '' and password = md5('123')
 - 甚至可以在一些访问量很大的网站上实现DDoS攻击
 
 **XSS防范**
+
+- 过滤。对于`<script> <img> <a>` 等进行过滤
+- 转义。对常见符号`(&、<、>)` 进行转义(`python3 html.escape`)
+- 后端设置`httpOnly`禁止浏览器访问和操作`Document.cookie`
+
+```python
+a = html.escape('<script>')
+a # '&lt;script&gt;'
+```
+
+## 3.redis
+
+### 3.1 什么是缓存？为什么要使用缓存？
+
+- 缓解关系型数据库（常见的是`Mysql`）并发访问的压力：热点数据
+- 减少响应时间：内存IO速度比磁盘快
+- 提升吞吐量：Redis等内存数据库单机就可以支撑很大的并发
+
+### 3.2 `Redis`和`Memcached`主要差别?
+
+![](./pic/3.redis/redis和memcache的差异.PNG)
+
+## 3.3 请简述redis常用数据类型和使用场景？
+
+- `String(字符串)`：用来实现简单的KV键值存储，比如计数器
+- `List(双向队列)`：可以用来存储用户的关注或者粉丝列表
+- `Hash`（哈希表）：用来存储彼此相关信息的键值对
+- `Set`（集合）：存储不重复元素，比如用户的关注者
+- `Sorted Set`（有序集合）：实时信息排行榜，通过score值进行排序
+
+### 3.4 `Redis`内置实现
+
+- `String`：整数或者`sds(Simple Dynamic String)`
+
+- List：ziplist或者double linked list
+
+  PS：ziplist是通过一个连续内块实现list结构，其中每个entry节点头部保存前后节点长度信息，实现双向链表功能
+
+- Hash：ziplist 和hashtable
+
+- Set：intset或者hashtable
+
+- SortedSet：skiplist跳跃表
+
+**skiplist实现**
+
+![](./pic/3.redis/跳跃表.PNG)
+
+## 3.5什么是redis事务？
+
+
+
