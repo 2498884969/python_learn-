@@ -195,27 +195,34 @@ a # '&lt;script&gt;'
 - `List(双向队列)`：可以用来存储用户的关注或者粉丝列表
 - `Hash`（哈希表）：用来存储彼此相关信息的键值对
 - `Set`（集合）：存储不重复元素，比如用户的关注者
-- `Sorted Set`（有序集合）：实时信息排行榜，通过score值进行排序
+- `Sorted Set`（有序集合）：实时信息排行榜，通过`score`值进行排序
 
 ### 3.4 `Redis`内置实现
 
 - `String`：整数或者`sds(Simple Dynamic String)`
 
-- List：ziplist或者double linked list
+- `List`：`ziplist`或者`double linked list`
 
-  PS：ziplist是通过一个连续内块实现list结构，其中每个entry节点头部保存前后节点长度信息，实现双向链表功能
+  PS：`ziplist`是通过一个连续内块实现`list`结构，其中每个`entry`节点头部保存前后节点长度信息，实现双向链表功能
 
-- Hash：ziplist 和hashtable
+- `Hash`：`ziplist` 和`hashtable`
 
-- Set：intset或者hashtable
+- `Set`：`intset`或者`hashtable`
 
-- SortedSet：skiplist跳跃表
+- `SortedSet`：`skiplist跳跃表`
 
 **skiplist实现**
 
 ![](./pic/3.redis/跳跃表.PNG)
 
 ### 3.5什么是redis事务？
+
+**和Mysql的事务有什么不同？**
+
+- 将多个请求打包，一次性、按顺序执行多个命令的机制
+- `Redis`通过`MULTI`，`EXEC`,`WATCH`,`DISCARD` 等命令实现事务
+- `Python redis-py pipeline=conn.pipeline(transaction=True)`
+
 ### 3.6使用的缓存模式？
 - `Cache Aside：`同时更新缓存和数据库，首先去缓存中获取数据，缓存中没有再去数据库里面拿数据，然后将数据更新到缓存。
   - 问题：数据一致性问题
@@ -234,6 +241,59 @@ a # '&lt;script&gt;'
   - 插入时删除缓存，或者为为None的缓存设置超时时间
 
 ### 3.8 如何解决缓存击穿问题？
+
+**某些非常热点的数据`key`过期，大量请求打到后端数据库**
+
+- 热点数据`key`失效导致大量请求大道后端数据库增加数据库压力
+- 分布式锁：获取锁的线程从数据库拉数据更新缓存，其他线程等待
+- 异步后台更新：后台任务对过期的`key`自动刷新
+
+### 3.9 如何解决缓存雪崩问题？
+
+**缓存（缓存服务器挂了）不可用或者大量缓存`key`同时失效，大量请求直接打到数据库**
+
+- 多级缓存：不同级别的`key`设置不同的超时时间
+- 随机超时：`key`的超时时间随机设置，防止同时超时
+- 架构层：提升系统可用性。监控、报警完善
+
+## 4. web框架和wsgi
+
+### 4.1什么wsgi？
+
+- `Python Web Server Gateway Interface(pep3333)`
+- 描述了`Web Server（Gunicorn/uwsgi）`如何与`web`框架`(Flask/Django)`交互，`Web` 框架如何处理请求
+
+`def application(environ, start_response)`
+
+- application就是WSGI app一个可调用对象
+- 参数
+  - environ：一个包含`WSGI`环境信息的字典，由`WSGI`服务器提供，常见的`key`有`PATH_INFO,QUERY_STRING`等
+  - start_reponse：生成WSGI响应的回调函数，接收两个参数`status`和`headers`
+- 函数返回响应体的可迭代对象
+
+```python
+from wsgiref.simple_server import make_server
+
+
+def my_app(environ, start_response):
+    print(environ['QUERY_STRING'])
+    status = '200 OK'
+    headers = [('Content-Type', 'text/html; charset=utf8')]
+    start_response(status, headers)
+    return [b'<h1>Hello world</h1>']  # 可迭代对象
+
+
+if __name__ == '__main__':
+    httpd = make_server('127.0.0.1', 8888, my_app)
+    httpd.serve_forever()
+```
+
+### 4.2常用的`Python Web`框架`Django/Flask/Tornado` 对比
+
+### 4.3Web框架的组成（淡化框架，加强基础）
+
+
+
 
 
 
