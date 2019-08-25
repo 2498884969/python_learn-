@@ -177,6 +177,33 @@ a = html.escape('<script>')
 a # '&lt;script&gt;'
 ```
 
+### 2.3 什么是CSRF?
+
+**CSRF:Cross-site request forgery（跨站请求伪造）**
+
+- 利用网站对于已认证用户的权限去执行为授权命令的一种恶意攻击
+- 攻击者会盗用你的登录信息，以你的身份发起请求
+- web身份认证机制只能识别一个请求是否来自某个用户的浏览器，但无法保证请求时用户自己或批准发送的
+
+![](C:\Users\Administrator\Desktop\python_learn-\面试\pic\2.web安全\csrf.PNG)
+
+**CSRF产生条件**
+
+- 受害者已经登录到目标网站并且没有退出（保持登录状态）
+- 受害者访问了攻击者发布的链接或者表单
+- 二者缺一不可
+
+**如何防范CSRF**
+
+- 不要在get请求里面有任何数据修改的操作
+- 令牌同步(`Synchronized token pattern`， 简称`STP`)：在用户请求的表单里面嵌入一个隐藏的`csrf_token`，服务端验证其是否与`cookie`中的一致（基于同源策略其他网站是无法获取`cookie`中的`csrf_token`） 黑客是拿不到你cookie中的scrftoken值得，前提是网站本身没有XSS漏洞
+- 如果是js提交需要先从`cookie`获取`csrf_token`作为`X-CSRFToken`请求头提交
+- 其他：检查来源`HTTP Referer`(容易被伪造)；验证码方式（安全但是繁琐）
+
+原理参考：`http://webpy.org/cookbook/csrf`
+
+
+
 ## 3.redis
 
 ### 3.1 什么是缓存？为什么要使用缓存？
@@ -291,6 +318,106 @@ if __name__ == '__main__':
 ### 4.2常用的`Python Web`框架`Django/Flask/Tornado` 对比
 
 ### 4.3Web框架的组成（淡化框架，加强基础）
+
+## 5.python2和python3的差异
+
+### 5.1python3改进
+
+- print成为函数
+- 编码问题，Python3不再有Unicode对象，默认str就是unicode
+- 除法变化，python3除法默认返回浮点数
+- 类型注解(`type hint`)。帮助IDE实现类型检查
+- 优化的`super()`方便直接调用父类函数
+- 高级解包操作。`a,b,*rest = range(10)`
+- `Keyword only arguments`。限定关键字参数
+- `Chained Exceptions`。`Python 3`重新抛出异常不会丢失栈信息
+- 一切返回迭代器`range,zip,map,dict.values,etc.are all iterators`。
+
+## 6.Python内置数据结构算法
+
+![](./pic/6.python内置数据结构和算法/python内置数据结构和算法.PNG)
+
+### 1.LRU算法
+
+## 7.系统设计
+
+### 1.短网址系统设计与实现
+
+```sql
+CREATE TABLE short_url(
+id bigint unsigned NOT NULL AUTO_INCREMENT,
+token varchar(10),
+url varchar(2048),
+created_at timestamp not null default CURRENT_TIMESTAMP,
+key `idx_token`(`token`)
+)
+```
+
+- 简单实现
+
+```python
+from string import ascii_letters, digits
+
+from flask import Flask, jsonify, render_template, request
+from flask_mysqldb import MySQL
+from flask_redis import FlaskRedis
+
+app = Flask(__name__)
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = '123456'
+app.config['MYSQL_DB'] = 'test'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
+redis_store = FlaskRedis(app)
+
+CHARS = ascii_letters + digits
+
+
+def encode(num: int) -> 'str':
+    if num == 0:
+        return CHARS[0]
+    res = []
+    while num:
+        num, rem = divmod(num, len(CHARS))
+        res.append(CHARS[rem])
+    return ''.join(reversed(res))
+
+
+@app.route('/shorten', methods=['POST'])
+def shorten_url():
+    long_url = request.json['url']
+    index = int(redis_store.incr('SHORT_CNT'))
+    token = encode(index)
+    sql = "INSERT INTO short_url(token, url) VALUES (%s, %s)"
+    cur = mysql.connection.cursor()
+    cur.execute(sql, (token, long_url))
+    mysql.connection.commit()
+    short_url = 'http://short.com/' + token
+    return jsonify(url=short_url)
+
+
+if __name__ == '__main__':
+    app.run()
+```
+
+
+
+### 2.抢红包系统设计与实现
+
+### 3.秒杀系统
+
+### 4.评论系统
+
+
+
+
+
+
+
+
+
+
 
 
 
