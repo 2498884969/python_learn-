@@ -70,6 +70,239 @@ PS:myIsam的索引和数据存放在不同文件中(`.MYI,.MYD`)，而`innodb`�
 
 ![](./pic/1.mysql/索引查找过程.png)
 
+### 1.4 事务（`trasaction`）
+
+- 事务是数据库并发控制的基本单位
+- 事务可以看做是一系列SQL语句的集合
+- 事务要么全部执行成功，要么全部执行失败（回滚）
+
+事务隔离级别：https://www.cnblogs.com/shihaiming/p/11044740.html
+
+```shell
+原子性（Atomicity）：事务开始后所有操作，要么全部做完，要么全部不做，不可能停滞在中间环节。事务执行过程中出错，会回滚到事务开始前的状态，所有的操作就像没有发生一样。也就是说事务是一个不可分割的整体，就像化学中学过的原子，是物质构成的基本单位。
+
+一致性（Consistency）：事务开始前和结束后，数据库的完整性约束没有被破坏 。比如A向B转账，不可能A扣了钱，B却没收到。
+
+隔离性（Isolation）：同一时间，只允许一个事务请求同一数据，不同的事务之间彼此没有任何干扰。比如A正在从一张银行卡中取钱，在A取钱的过程结束前，B不能向这张卡转账。
+
+持久性（Durability）：事务完成后，事务对数据库的所有更新将被保存到数据库，不能回滚。（redo_log）
+```
+
+- 事务并发控制可能产生的问题
+
+```shell
+- 幻读（phantom read）:一个事务第二次查出现第一次没有的结果				
+- 不可重复读(nonrepeatable read)：一个事务重复两次读得到的结果不一致
+- 脏读(dirty read):一个事务读到另外一个事务没有提交的修改
+- 修改丢失(lost update)：并发写入造成其中一些修改丢失
+```
+
+- 四种事务的隔离级别
+
+```shell
+
+```
+
+- 如何解决高并发场景下的插入重复
+
+```shell
+- 使用数据库的唯一索引
+- 使用异步队列写入
+- 使用redis等实现分布式锁
+```
+
+- 乐观锁和悲观锁
+
+```shell
+- 悲观锁是先获取锁再进行操作。一锁二查三更新select for update
+- 乐观锁先修改，更新的时候发现数据已经变了就回滚(check and set) 时间戳或版本号
+- 选择的时候需要根据响应速度、冲突频率、重试代价来判断使用哪一种		
+```
+
+- `InnoDB vs MyISAM`
+
+```shell
+MyISAM不支持事务 InnoDB 支持事务 
+MyISAM不支持外键 InnoDB 支持外键 
+MyISAM只支持表锁 InnoDB 支持表锁和行锁
+MyISAM只支持全文索引 InnoDB 不支持全文索引
+```
+
+
+
+###  1.5相关面试题
+
+1. `MYSQL`与`IO`的关系：<http://www.sohu.com/a/280609547_818692>
+2. 
+
+### 1.6MYSQL索引原理
+
+- 为什么需要索引？
+
+```shell
+如何定位并优化慢查询SQL？
+
+	1.根据慢查询日志定位出慢查询SQL（show_query_log_ile）
+	2.使用explain等工具分析sql
+	3.修改sql尽量使得sql通过索引进行查询,调整业务代码
+
+最左匹配原则：
+	1. 在使用联合索引的情况下，mysql会一直向右匹配知道遇到范围查询（>、<、between、like）就停止匹配，比如
+	a=3 and b=4 and c>5 and d=6 如果建立(a、b、c、d)顺序的索引，d是用不到索引的，如果建立(a、b、d、c)的索 	引，则都可以用到
+	2. =和in可以乱序，比如a=1 and b=2 and c=3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索	  引可以识别的形式。
+	
+最左匹配原则的成因：
+
+索引是建立的越多越好吗：
+    1.数据量小的表不需要建立索引，建立会增加额外的索引开销
+    2.数据变更需要维护索引，因此更多的索引意味着更多的维护成本
+    3.更多的索引也需要更多的空间
+    
+建表的时候需要根据查询需求来创建索引：
+- 经常作为查询条件的字段
+- 经常作为表连接的字段
+- 经常出现在order by, group by之后的字段
+
+创建索引需要注意什么？
+- 非空字段not null,Mysql很难对于空值进行查询优化
+- 区分度高，离散度大，作为索引的字段尽量不要有大量相同值(值相同只能进行遍历搜索)
+- 索引的长度不要太长
+
+索引什么时候失效？
+
+模糊匹配、类型隐转、模糊搜索
+- 以%开头的like语句，模糊搜索
+- 出现类型隐士转换
+- 没有满足最左前缀
+
+聚集索引 非聚集索引 辅助索引
+
+内连接 外连接 全连接
+
+1. 为什么mysql数据库的主键使用自增的整数比较好?
+2. 使用uuid可以吗？为什么？
+3. 如果是分布式系统我们怎么生成数据库的自增id?
+```
+
+### 1.7锁模块
+
+```shell
+MyISAM和InnoDB关于锁方面的区别是什么：
+	lock tables xxx read;		增加表级读锁
+	lock tables xxx read;		增加表级写锁
+	unlock tables;				释放锁
+	MyISAM不支持事务 InnoDB 支持事务 
+    MyISAM不支持外键 InnoDB 支持外键 
+    MyISAM只支持表锁 InnoDB 支持表锁和行锁
+    MyISAM只支持全文索引 InnoDB 不支持全文索引
+    autocommit 事务自动提交
+    
+    select * from person where id=3;					快照读并未添加锁
+    select * from person where id=3 lock in share mode;		为单行添加读锁
+    
+    innodb全表扫描（不走索引）同样会为表加上表锁
+    
+    IS ： 意向共享锁	表级锁
+    IX ： 意向排他锁	表级锁
+    
+    DML(Data Manipulation Language, DML)锁：对于数据进行增删改查所加的锁
+    DDL(Data Definition Language, DDL)锁：对于表结构进行变更锁加的锁
+    
+
+数据库事务的四大特性
+
+事务隔离级别以及各级别下的并发访问问题
+	- 幻读（phantom read）:一个事务第二次查出现第一次没有的结果				
+    - 不可重复读(nonrepeatable read)：一个事务重复两次读得到的结果不一致
+    - 脏读(dirty read):一个事务读到另外一个事务没有提交的修改
+    - 修改丢失(lost update)：并发写入造成其中一些修改丢失(mysql几乎避免了这种情况的发生)
+	
+	# 设置事务隔离级别
+	set session transaction isolation level read uncommitted
+	
+	# 幻读 rc级别测试
+	锁表（添加共享锁之后）之后插入数据
+	
+	# serializable 不用显示添加锁
+
+InnoDB可重复读级别下如何避免幻读
+	当前读（对于读取的记录加锁）：
+		select ... lock in share mode, select ... for update
+		update, delete, insert
+    快照度：不加锁的非阻塞读，select不加锁的条件是事务隔离级别低于serializable的情况下
+    	RC:快照度==当前读		每次创建一个快照
+    	RR:快照度！=当前读     创建快照的时机决定了快照的版本
+
+    	 	
+     Gap锁会用在非唯一索引或者不走索引的当前读中
+     	- 索引没有全部命中或没有命中
+     	- 非唯一索引
+     	- 不走索引(会对于所有gap上锁)
+     	
+     主要通过next-key锁来避免幻读
+     	next-key由record lock 和gap lock组成 
+    	
+    
+RC、RR级别下的InnoDB的非阻塞读如何实现
+	    
+    快照读如何实现：
+    	- 数据行里面的DB_TRX_ID（最后一次修改的事务编号deletion）、DB_ROLL_PTR（指向上一个版本）、DB_ROW_ID(行ID，隐藏	主键)字段
+    	- undo 日志
+    	- read view
+```
+
+### 1.8 关键语法
+
+```shell
+GROUP BY
+	- student stu_id socre c_id course
+
+student: name id
+score: id student_id course_id score
+
+# 查询所有同学的学号、选课数、总成绩
+# 如果用group by 那么你的select语句中要么是你groupby里用到的列，
+# 要么就是我们之前说的带有sum min等列函数的列， 仅对于同一张表有效
+select student_id, count(course_id), sun(score) from score group by syudent_id
+
+# 查询 所有同学 的学号、姓名、选课数、总成绩
+
+select student_id,name, count(course_id), sun(score)  from score sc left join student st on sc.student_id=st.student_id group by student_id
+
+from student, score where sc.student=st
+
+having
+	- 通常与group by 字句一起使用
+	- where 过滤行, having过滤组
+	- 出现在同一SQL中的顺序：where > group by > having
+	
+# 查询平均成绩大于60分的同学的学号和平均成绩
+
+select student_id , avg(score) 
+from
+	score
+group by score having avg(score) > 60
+
+# 查询所有同学的学号、选课数、总成绩
+# 查询平均成绩大于60分的同学的学号和平均成绩
+# 取出student_id为1的学生的成绩情况
+# 没有学全所有课的同学的学号、姓名
+
+课程 count(score.course_id)<4
+学号 score.student_id student.id
+姓名： student.name
+
+select student.id student.name from student, score
+where student.id = score.student_id
+group by student.id
+having count(score.course_id) < (select count(*) from course);
+
+
+
+```
+
+
+
 ## 2.WEB安全
 
 ### 2.1 SQL注入
@@ -216,9 +449,21 @@ a # '&lt;script&gt;'
 
 ![](./pic/3.redis/redis和memcache的差异.PNG)
 
+```shell
+memcache:
+	- 支持简单数据类型
+	- 不支持数据持久化存储
+	- 不支持主从
+	- 不支持分片
+```
+
+
+
+
+
 ### 3.3 请简述redis常用数据类型和使用场景？
 
-- `String(字符串)`：用来实现简单的KV键值存储，比如计数器
+- `String(字符串)`：用来实现简单的KV键值存储，比如计数器，最大512M
 - `List(双向队列)`：可以用来存储用户的关注或者粉丝列表
 - `Hash`（哈希表）：用来存储彼此相关信息的键值对
 - `Set`（集合）：存储不重复元素，比如用户的关注者
@@ -226,7 +471,7 @@ a # '&lt;script&gt;'
 
 ### 3.4 `Redis`内置实现
 
-- `String`：整数或者`sds(Simple Dynamic String)`
+- `String`：整数或者`sds(Simple Dynamic String)` 简单动态字符串
 
 - `List`：`ziplist`或者`double linked list`
 
@@ -236,7 +481,7 @@ a # '&lt;script&gt;'
 
 - `Set`：`intset`或者`hashtable`
 
-- `SortedSet`：`skiplist跳跃表`
+- `SortedSet`(zSet)：`skiplist跳跃表`
 
 **skiplist实现**
 
@@ -282,6 +527,162 @@ a # '&lt;script&gt;'
 - 多级缓存：不同级别的`key`设置不同的超时时间
 - 随机超时：`key`的超时时间随机设置，防止同时超时
 - 架构层：提升系统可用性。监控、报警完善
+
+### 3.10 缓存主要应用架构
+
+### 3.11 为什么redis这么快？
+
+```shell
+1. 完全基于内存，绝大部分请求时纯粹的内存操作，执行效率高
+2. 数据结构简单，对数据操作也简单(存储结构类似于hashmap)
+3. 采用单线程，避免的锁请求和上下文切换
+4. 使用了多路IO复用模型，非阻塞IO
+```
+
+### 3.12 从海量`key`里查询出某一固定前缀的`key`
+
+```shell
+keys pattern: 查找所有符合给定pattern的key
+- keys指令会一次性返回所有匹配的key
+- 键的数量过大会使服务卡顿
+
+scan cursor [MATCH pattern] [Count count]
+count 为期待返回的元素数量
+- 基于游标的迭代器, 需要基于上一次的游标延续之前的迭代过程
+- 以0为游标开始一次新的迭代，知道命令返回0， 完成一次便利
+- 不保证每次都返回给定数量个元素，支持模糊查询
+- 一次返回的数量不可控，只能大概符合count参数
+```
+
+### 3.13 如何通过redis实现分布式锁
+
+```shell
+- 互斥性
+	同时持有锁的客户端只能有一个
+- 安全性
+	释放锁和获得锁的必须使同一个客户端
+- 死锁
+	 获取锁的客端端由于某些原因导致宕机，必须通过一定的手段使得宕机后redis还可以继续释放
+ - 容错
+ 	  一些redis节点宕机之后还可以继续获取锁
+ 	  
+为代码段1(原子性得不到满足)：
+status = redis.setnx(key, "1")
+if status == 1:
+	expire(key, expire_time)
+	doSometing()
+
+set key value [Ex seconds] [Px milliseconds] [NX|XX]
+
+伪代码:
+res = redis.set(lockKey, requestId（'uuid或者时间戳'）,SET_IF_NOT_EXITE, EXPIRE_TIME);
+if ('OK'.equals(res))
+	doSomething
+```
+
+### 3.14 大量key同时过期的注意事项
+
+```shell
+集中过期，由于清除大量key很耗时，会出现短暂的卡顿现象
+- 解决方案：在设置key的过期时间的时候，给每个key加上随机值
+```
+
+### 3.15 `copy-on-write`
+
+```shell
+如果有多个调用者要求相同的资源(如内存或磁盘上的数据存储)，他们会共同获取相同的指针指向相同的资源，直到某个调用者试图修改资源的内容的时候，系统才会真正复制一个副本给该调用者，而其他调用者者所看到的最初的资源仍然保持不变
+```
+
+### 3.16 redis 持久化
+
+```shell
+- AOF(APPEND-ONLY-FILE)持久化
+
+	- 配置项:
+		- appendonly yes
+		- appendsync everysec/always/no(交给操作系统决定)
+    - 注意：
+    	- 以aof方式启动redis不会再去读取rdb文件
+    - 日志重写
+    	- 调用fork,创建一个子进程
+    	- 子进程把新的AOF写到一个临时文件里，不依赖原来的AOF文件
+    	- 主进程持续将新的变动同时写到内存和原来的AOF里
+    	- 主进程获取子进程重写AOF的完成信号，往新的AO同步增量变动
+    	- 使用新的AOF文件替换旧的AOF文件
+```
+
+- RDB和AOF的优缺点
+
+```shell
+RDB优点：全量数据快照，文件小，恢复快
+RDB缺点：无法保存最近一次快照之后的数据
+AOF优点：可读性高，适合保存增量数据，数据不易丢失
+AOF缺点：文件体积大，恢复时间长
+```
+
+RDB-AOF混合持久化方式(redis4.0之后)
+
+```shell
+- BGSAVE做镜像全量持久化，AOF做镜像增量持久化
+```
+
+### 3.17 为什么使用Pipeline?
+
+- `Pipeline`和`Linux`的管道类似
+
+- `Pipeline`批量执行命令，节省多次IO往返的时间
+
+### 3.18 `Redis`的同步机制
+
+```shell
+全同步过程：
+	- slave发送sync命令到Master
+	- Master启动一个后台进程，将redis中的数据快照保存到文件中
+	- Master将保存数据快照期间接收到的写命令缓存起来
+	- Master完成写文件操作后，将该文件发送给Slave
+	- 使用新的RDB文件替换掉旧的RDB文件
+	- Master将这期间收集的增量命令发送给slave
+	
+增量同步：
+	- Master接受到用户的操作指令，判断是否需要传播到slave
+	- 将操作记录追加到AOF文件中
+	- 将操作传播到其他的Slave: 1、对齐主从库；2、往响应缓存写入指令
+	- 将缓存中的数据发送给slve
+```
+
+### 3.19 `redis sentinel`
+
+```shell
+解决主从同步Master宕机后的主从切换问题：
+	- 监控：检查主从服务器是否运行正常
+	- 提醒：通过api向管理员或者其他应用程序发送故障通知
+	- 自动故障迁移：主从同步
+	
+流言协议Gossip
+	- 杂乱无章中寻求一致
+	- 每个节点都随机地与对方通信，最终所有节点地状态达成一致
+	- 种子节点定期随机向其他节点发送节点列表以及需要传播地消息
+	- 不保证信息一定会传递给所有节点，但是最终会趋于一致
+```
+
+### 3.20 `redis`的集群原理
+
+```shell
+如何从海量数据中快速找到所需？
+
+一致性哈希算法   哈希环 顺时针 数据倾斜(数据在某一节点区间内分布较多) 虚拟节点映射
+
+取模方式不行？
+增加节点 hash(key)%(N+1) 则所有原有缓存的位置基本上都会发生改变，导致缓存失效 5%4 ==> 5%5
+减少节点 hash(key)%(N-1)
+
+redis cluster的hash slot算法
+crc16
+crc16(key) % 16384
+多写增加master节点， 多读增加slave节点
+```
+
+
 
 ## 4. web框架和wsgi
 
@@ -353,9 +754,11 @@ key `idx_token`(`token`)
 )
 ```
 
+```
+
 - 简单实现
 
-```python
+​```python
 from string import ascii_letters, digits
 
 from flask import Flask, jsonify, render_template, request
@@ -408,6 +811,26 @@ if __name__ == '__main__':
 ### 3.秒杀系统
 
 ### 4.评论系统
+
+## 8. 面试中不会的问题
+
+```shell
+1.redis如何删除过期的key
+	- 被动删除：当读/写一个已经过期的key时，会触发惰性删除策略，直接删除掉这个过期key
+	- 主动删除：由于惰性删除策略无法保证冷数据被及时删掉，所以Redis会定期主动淘汰一批已过期的key
+	- 当前已用内存超过maxmemory限定时，触发主动清理策略
+	文章链接：https://blog.csdn.net/u013308490/article/details/83105470
+2.描述lru算法
+3.浮点数的表示
+4.rabbitmq消息重复如何处理
+5.rabbitmq如何保证消息的次序
+6.MySQL大表在增加字段与索引的过程中如何避免表上锁
+7.描述redis的AOF重写的过程
+8.rabbitmq中的三种模式
+    - Fanout
+    - Direct
+    - Topic
+```
 
 
 
