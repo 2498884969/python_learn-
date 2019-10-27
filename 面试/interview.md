@@ -156,6 +156,58 @@ MyISAM只支持全文索引 InnoDB 不支持全文索引
 	
 	2. =和in可以乱序，比如a=1 and b=2 and c=3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索	  引可以识别的形式。
 	
+-- 1.建表
+CREATE TABLE t_a(
+`a` INT UNSIGNED not null auto_increment,
+`b` int not null,
+`c` int not null,
+`d` int not null,
+PRIMARY KEY(`a`) 
+);
+-- 2. 创建唯一索引
+ALTER table t_a add UNIQUE(`b`); 
+-- 3.添加联合索引
+alter table t_a add key(`a`, `b`, `c`, `d`); 
+
+-- 4.插入数据
+INSERT INTO t_a (a,b,c,d) VALUES (2,3,4,5); 
+INSERT INTO t_a (a,b,c,d) VALUES (3, 4, 5, 6);
+INSERT INTO t_a (a,b,c,d) VALUES (4,5,6,7); 
+INSERT INTO t_a (a,b,c,d) VALUES (5, 6, 7, 8); 
+-- 5.查询仅使用了主键索引并没有使用复合索引
+explain select * from t_a where a=3 and b=4 and c>4 and d=6\G;
+***************************[ 1. row ]***************************
+id            | 1
+select_type   | SIMPLE
+table         | t_a
+partitions    | <null>
+type          | const
+possible_keys | PRIMARY,b,a
+key           | PRIMARY
+key_len       | 4
+ref           | const
+rows          | 1
+filtered      | 100.0
+Extra         | <null>
+	
+	
+id            | 1
+select_type   | SIMPLE
+table         | t_b
+partitions    | <null>
+type          | index
+possible_keys | <null>    空
+key           | a		不为空
+key_len       | 20
+ref           | <null>
+rows          | 1
+filtered      | 100.0
+Extra         | Using where; Using index	
+    这种情况一般发生在覆盖索引条件下
+    possible_keys为null 说明用不上索引的树形查找
+    但如果二级索引包含了所有要查找的数据，二级索引往往比聚集索引小，所以mysql可能会选择顺序遍历这个二级索引直接返回
+    所以就出现了你的这个情况
+	
 最左匹配原则的成因：
 
 索引是建立的越多越好吗：
@@ -895,6 +947,36 @@ LRU算法的设计原则是：如果一个数据在最近一段时间没有被�
     - Fanout
     - Direct
     - Topic
+    
+9.docker的几种网络模式
+我们在使用docker run创建Docker容器时，可以用--net选项指定容器的网络模式，Docker有以下4种网络模式：
+
+· host模式，使用--net=host指定。
+· container模式，使用--net=container:NAME_or_ID指定。
+· none模式，使用--net=none指定。
+· bridge模式，使用--net=bridge指定，默认设置。
+
+1 host模式
+
+Docker使用的网络实际上和宿主机一样，在容器内看到的网卡ip是宿主机上的ip。
+
+众所周知，Docker使用了Linux的Namespaces技术来进行资源隔离，如PID Namespace隔离进程，Mount Namespace隔离文件系统，Network Namespace隔离网络等。一个Network Namespace提供了一份独立的网络环境，包括网卡、路由、Iptable规则等都与其他的Network Namespace隔离。一个Docker容器一般会分配一个独立的Network Namespace。但如果启动容器的时候使用host模式，那么这个容器将不会获得一个独立的Network Namespace，而是和宿主机共用一个Network Namespace。容器将不会虚拟出自己的网卡，配置自己的IP等，而是使用宿主机的IP和端口。
+
+2 container模式
+多个容器使用共同的网络看到的ip是一样的。
+
+在理解了host模式后，这个模式也就好理解了。这个模式指定新创建的容器和已经存在的一个容器共享一个Network Namespace，而不是和宿主机共享。新创建的容器不会创建自己的网卡，配置自己的IP，而是和一个指定的容器共享IP、端口范围等。同样，两个容器除了网络方面，其他的如文件系统、进程列表等还是隔离的。两个容器的进程可以通过lo网卡设备通信。
+
+3 none模式
+
+这种模式下不会配置任何网络。
+这个模式和前两个不同。在这种模式下，Docker容器拥有自己的Network Namespace，但是，并不为Docker容器进行任何网络配置。也就是说，这个Docker容器没有网卡、IP、路由等信息。需要我们自己为Docker容器添加网卡、配置IP等。
+
+4 bridge模式
+
+bridge模式是Docker默认的网络设置，此模式会为每一个容器分配Network Namespace、设置IP等，并将一个主机上的Docker容器连接到一个虚拟网桥上。
+
+类似于Vmware的nat网络模式。同一个宿主机上的所有容器会在同一个网段下，相互之间是可以通信的。
 ```
 
 
