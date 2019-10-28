@@ -345,5 +345,76 @@ Reading: 0 Writing: 1 Waiting: 0
 
 ### 2.10 random_index
 
+### 2.11 nginx配置https
+
+```shell
+https://www.centos.bz/2017/10/centos%E4%B8%8Bnginx%E7%9A%84https%E9%85%8D%E7%BD%AE/
+https://www.cnblogs.com/1111zhiping-tian/articles/7979122.html
+https://www.cnblogs.com/muliu/p/9482728.html
+# http重定向到https
+https://www.cnblogs.com/nuccch/p/7681592.html
+
+http {
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types;
+    default_type        application/octet-stream;
+
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include /etc/nginx/conf.d/*.conf;
+
+    server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  _;
+        root         /usr/share/nginx/html;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        rewrite ^/(.*)$ https://192.168.1.59/$1 permanent;
+
+        location / {
+            echo 123;
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name 192.168.1.59;
+        ssl_certificate /root/https/https.crt;
+        ssl_certificate_key  /root/https/https.key;
+        ssl_session_timeout  5m;
+
+        location / {
+            root html;
+            index index.html;
+        }
+    }
+
+```
+
+
+
 
 
