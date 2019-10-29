@@ -414,6 +414,42 @@ http {
 
 ```
 
+### 2.12 nginx之map
+
+```shell
+相关：
+http://www.ttlsa.com/nginx/using-nginx-map-method/
+https://blog.csdn.net/ketaobaobao/article/details/99640038
+vim缩进设置：
+https://www.cnblogs.com/wi100sh/p/4938996.html
+ vim /etc/vimrc 
+
+set ts=4
+set expandtab
+set autoindent
+
+ server {
+        listen 8080;
+        server_name localhost;
+
+        location /hello {
+            default_type text/plain;
+            echo uri: $uri;
+            echo match: $match;
+            echo capture: $1;
+            echo new: $match$1;
+        }
+    }
+
+```
+
+### 2.13 nginx中geo模块
+
+```shell
+https://www.cnblogs.com/jackey2015/p/10407030.html
+http://www.ttlsa.com/nginx/using-nginx-geo-method/
+```
+
 
 
 
