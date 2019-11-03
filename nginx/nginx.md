@@ -450,6 +450,18 @@ https://www.cnblogs.com/jackey2015/p/10407030.html
 http://www.ttlsa.com/nginx/using-nginx-geo-method/
 ```
 
+### 2.14 nginx中的access_module
+
+```shell
+https://www.cnblogs.com/wt645631686/p/8252915.html
+# centos修改hosts文件
+https://www.cnblogs.com/AGoodDay/p/11161887.html
+```
+
+
+
+
+
 
 
 
