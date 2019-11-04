@@ -458,11 +458,127 @@ https://www.cnblogs.com/wt645631686/p/8252915.html
 https://www.cnblogs.com/AGoodDay/p/11161887.html
 ```
 
+## 三、nginx场景实践
+
+### 3.1 静态资源web服务
+
+```shell
+# https://www.cnblogs.com/dowait/p/10808623.html
+# https://blog.csdn.net/BushQiang/article/details/90763343
+```
+
+1.  静态资源类型
+
+| 类型       | 种类              |
+| ---------- | ----------------- |
+| 浏览器渲染 | HTML、CSS、JS     |
+| 图片       | JPEG、GIF、PNG    |
+| 视频       | FLV、MP4、MPEG    |
+| 文件       | TXT、任意下载文件 |
+
+```shell
+1. sendfile 		零拷贝
+2. tcp_nopush 		提高网络传输效率	压缩包多个整合   sendfile on
+3. tcp_nodelay		不进行包压缩	实时性强			keepalive
+4. gzip				压缩传输
+5. gzip_comp_level 	 压缩比
+6. gzip_http_version gzip_http版本(1.1)
+7. http_gzip_static_module - 预读gzip功能
+
+# gzip_static
+https://blog.csdn.net/sadhopedream/article/details/20950519
+
+server {
+    listen       80;
+    server_name  116.62.103.228 jeson.imoocc.com www.jesonc.com;
+    
+    sendfile on;
+    #charset koi8-r;
+    access_log  /var/log/nginx/log/static_access.log  main;
+
+    
+    location ~ .*\.(jpg|gif|png)$ {
+        gzip on;
+        gzip_http_version 1.1;
+        gzip_comp_level 2;
+        gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+ 
+        valid_referers none blocked 116.62.103.228 jeson.imoocc.com ~wei\.png;
+        if ($invalid_referer) {
+            return 403;
+        }
+        root  /opt/app/code/images;
+    }
+
+    location ~ .*\.(txt|xml)$ {
+        gzip on;
+        gzip_http_version 1.1;
+        gzip_comp_level 1;
+        gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+        root  /opt/app/code/doc;
+    }
+
+    location ~ .*\.(htm|html)$ {
+        expires 24h;
+        root  /opt/app/code;
+    }
+
+    location ~ ^/download {
+        gzip_static on;
+        tcp_nopush on;
+        root /opt/app/code;
+    }
+
+
+    #error_page  404              /404.html;
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504 404  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+    #
+    #location ~ \.php$ {
+    #    proxy_pass   http://127.0.0.1;
+    #}
+
+    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+    #
+    #location ~ \.php$ {
+    #    root           html;
+    #    fastcgi_pass   127.0.0.1:9000;
+    #    fastcgi_index  index.php;
+    #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+    #    include        fastcgi_params;
+    #}
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    #
+    #location ~ /\.ht {
+    #    deny  all;
+    #}
+}
+
+```
+
+### 3.2 设置浏览器缓存
+
+```shell
+# https://www.cnblogs.com/lovelinux199075/p/9057526.html
+```
+
+校验过期机制
+
+| 校验是否过期              | Expires(1.0)、Cache-Control(max-age)(1.1) |
+| ------------------------- | ----------------------------------------- |
+| 协议中的Etag头部信息校验  | Etag                                      |
+| Last-Modified头部信息校验 | Last-Modified                             |
 
 
 
-
-
-
-
+![](./nginx-cache.png)
 
