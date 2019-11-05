@@ -569,6 +569,7 @@ server {
 
 ```shell
 # https://www.cnblogs.com/lovelinux199075/p/9057526.html
+# max-age=0 代表每一次请求服务端的时候都要对于请求信息进行校验
 ```
 
 校验过期机制
@@ -581,4 +582,33 @@ server {
 
 
 ![](./nginx-cache.png)
+
+### 3.3 跨站访问
+
+```shell
+# 跨站访问
+https://www.cnblogs.com/saintdingspage/p/9862471.html
+https://www.cnblogs.com/zhongyehai/p/10507770.html
+# 容易出现csrf攻击
+```
+
+### 3.4 nginx防盗链
+
+```shell
+# 防盗链
+https://www.cnblogs.com/ysfg/p/9867510.html
+
+
+命令：curl -e "http://www.baidu.com" -I http://116.62.103.228/wei.png
+```
+
+### 3.5 nginx反向代理
+
+```shell
+proxy_pass url;
+```
+
+
+
+### 3.6nginx 正向代理
 
