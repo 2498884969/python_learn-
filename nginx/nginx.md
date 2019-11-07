@@ -598,7 +598,6 @@ https://www.cnblogs.com/zhongyehai/p/10507770.html
 # 防盗链
 https://www.cnblogs.com/ysfg/p/9867510.html
 
-
 命令：curl -e "http://www.baidu.com" -I http://116.62.103.228/wei.png
 ```
 
@@ -606,9 +605,51 @@ https://www.cnblogs.com/ysfg/p/9867510.html
 
 ```shell
 proxy_pass url;
+include proxy_params;
+```
+
+### 3.6nginx 正向代理
+
+```shell
+# proxy_redirect_default
+```
+
+### 3.7 nginx负载均衡
+
+```shell
+# 1. https://www.cnblogs.com/jimisun/p/8254192.html
+# 2. https://blog.csdn.net/x1021333506/article/details/80975462
+# 3. https://segmentfault.com/a/1190000015006377
+# 四层和七层的区别
+# https://www.cnblogs.com/zhaiyf/p/9051694.html
+
+# 测试
+1. 轮询
+2. 权重轮询
+3. ip_hash		代理ip
+4. url_hash
+5. 随机法
+6. 加权随机
+7. 最小连接数
+8. hash关键数值 				hash $request_uri
 ```
 
 
 
-### 3.6nginx 正向代理
+| down         | 当前的server暂时不参与负载均衡      |
+| ------------ | ----------------------------------- |
+| backup       | 预留的备份服务器                    |
+| max_fails    | 允许请求失败的次数                  |
+| fail_timeout | 经过max_fails失败后，服务暂停的时间 |
+| max_conns    | 限制最大的接收的连接数              |
+
+
+
+### 3.8 nginx 作为缓存服务器
+
+```shell
+1.
+# https://www.cnblogs.com/crazymagic/p/11029487.html
+https://www.jianshu.com/p/5659e74ab81e
+```
 
