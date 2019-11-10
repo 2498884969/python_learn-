@@ -651,5 +651,8 @@ include proxy_params;
 1.
 # https://www.cnblogs.com/crazymagic/p/11029487.html
 https://www.jianshu.com/p/5659e74ab81e
+https://www.cnblogs.com/crazymagic/p/11029487.html
+
+验证：缓存开启切换不同url
 ```
 
