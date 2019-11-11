@@ -15,7 +15,6 @@ public class FileServiceTest {
 
         // 通过lambda表达式，打印文件内容
         fileService.fileHandle(filePath,
-
                 System.out::println);
     }
 }

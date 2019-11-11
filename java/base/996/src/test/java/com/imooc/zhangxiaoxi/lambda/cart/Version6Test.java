@@ -12,6 +12,7 @@ public class Version6Test {
         List<Sku> cartSkuList = CartService.getCartSkuList();
 
         // 过滤商品单价大于1000的商品
+        // 类型判断
         List<Sku> result = CartService.filterSkus(
                 cartSkuList,
                 (Sku sku) -> sku.getSkuPrice() > 1000);

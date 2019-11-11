@@ -130,7 +130,7 @@ public class CartService {
 
     /**
      * Version 4.0.0
-     * 根据不同的Sku判断标准，对Sku列表进行过滤
+     * 根据不同的Sku判断标准，对Sku列表进行过滤 策略模式
      * @param cartSkuList
      * @param predicate - 不同的Sku判断标准策略
      * @return
