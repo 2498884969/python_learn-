@@ -49,7 +49,7 @@ public class StreamVs {
         }
 
         /**
-         * 排序
+         * 排序 从大到小
          */
         notBooksSkuList.sort(new Comparator<Sku>() {
             @Override
@@ -120,7 +120,7 @@ public class StreamVs {
                 .filter(sku -> !SkuCategoryEnum.BOOKS.equals(
                         sku.getSkuCategory()))
                 /**
-                 * 排序
+                 * 排序 这里需要看一下
                  */
                 .sorted(Comparator.
                         comparing(Sku::getTotalPrice).reversed())
