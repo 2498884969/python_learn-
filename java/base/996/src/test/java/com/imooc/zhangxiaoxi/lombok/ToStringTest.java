@@ -31,8 +31,8 @@ public class ToStringTest {
     public void test() {
         ToStringTest toStringTest = new ToStringTest();
         toStringTest.setField1("zhang");
-        toStringTest.setField2("xiaoxi");
-
+//        toStringTest.setField2("xiaoxi");
+        toStringTest.setField1("111111111111");
         System.out.println(toStringTest.toString());
     }
 
