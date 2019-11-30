@@ -61,5 +61,48 @@ collation	英[kəˈleɪʃn] 校对整理
 同一条记录在系统中可以存在多个版本，就是数据库的多版本并发控制（MVCC）
 ```
 
+### 4. 额外
 
+### 4.1与锁相关的表
+
+```shell
+# mysql查看当前数据库锁请求
+https://blog.csdn.net/asdfsadfasdfsa/article/details/84634669
+# 查询事务的详细信息
+https://www.cnblogs.com/gaogao67/p/10790520.html
+```
+
+`information_shcema`下的三张表（通过这三张表可以更新监控当前事物并且分析存在的锁问题）
+
+- `innodb_trx` （打印`innodb`内核中的当前活跃事务）
+-  `innodb_locks` （ 打印当前状态产生的`innodb`锁 仅在有锁等待时打印）
+
+- `innodb_lock_waits`（打印当前状态产生的`innodb`锁等待 仅在有锁等待时打印，感觉没多大用）
+
+
+
+| 字段名                | 说明                                                         |
+| --------------------- | ------------------------------------------------------------ |
+| trx_id                | 事务ID                                                       |
+| trx_state             | 当前事务的状态(runing和lock_wait两种状态)                    |
+| trx_started           | 事务开始的时间                                               |
+| trx_requested_lock_id | 处于等待状态务的锁ID,trx_state为running，则值为NULL          |
+| trx_wait_started      | 事务等待的开始时间                                           |
+| trx_weight            | 事务的权重，在innodb中，发生死锁的时候优先回滚权重较小的事务 |
+| trx_mysql_thread_id   | mysql中的线程ID即show processlist的结果                      |
+| trx_query             | 事务运行的SQL                                                |
+
+- `innodb_locks` 
+
+|      |      |
+| ---- | ---- |
+|      |      |
+|      |      |
+|      |      |
+|      |      |
+|      |      |
+|      |      |
+|      |      |
+|      |      |
+|      |      |
 
