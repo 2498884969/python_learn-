@@ -54,6 +54,43 @@ https://www.cnblogs.com/u-vitamin/p/10608441.html
 https://blog.csdn.net/eagle89/article/details/82148751
 ```
 
+### 10 MYSQL为什么会选错索引
+
+```shell
+https://www.cnblogs.com/a-phper/p/10313888.html
+
+# delimiter 练习
+https://blog.csdn.net/yuxin6866/article/details/52722913
+# mysql触发器
+https://www.cnblogs.com/fps2tao/p/10400936.html
+# mysql 事件
+https://www.cnblogs.com/wt645631686/p/9208245.html
+
+表 t
+id int p
+a int nd
+b int dn
+k a
+k b
+
+delimiter ;;
+  create procedure idata()
+  begin
+    declare i int;
+    set i=1;
+    while(1<=10000) do
+      insert into t values (i,i,i);
+      set i=i+1;
+    end while
+  end;;
+delimiter ;
+
+
+
+```
+
+
+
 ## 3.名词
 
 ```shell
@@ -61,7 +98,9 @@ collation	英[kəˈleɪʃn] 校对整理
 同一条记录在系统中可以存在多个版本，就是数据库的多版本并发控制（MVCC）
 ```
 
-### 4. 额外
+## 4. 额外
+
+
 
 ### 4.1与锁相关的表
 
@@ -105,4 +144,16 @@ https://www.cnblogs.com/gaogao67/p/10790520.html
 |      |      |
 |      |      |
 |      |      |
+
+### 4.2Mysql 添加 create_time, update_time自动更新
+
+```shell
+https://www.jianshu.com/p/490947d61719
+```
+
+### 4.3 触发器before和after
+
+```shell
+https://www.cnblogs.com/zuochuang/p/7263848.html
+```
 
