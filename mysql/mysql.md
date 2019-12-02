@@ -157,3 +157,48 @@ https://www.jianshu.com/p/490947d61719
 https://www.cnblogs.com/zuochuang/p/7263848.html
 ```
 
+### 4.4  mysql避免幻读原理
+
+```shell
+# 两种情况 快照读(mvcc) 当前读(next-key)
+https://www.cnblogs.com/fanguangdexiaoyuer/p/10759746.html
+```
+
+
+
+
+
+## 5.循环
+
+```shell
+1. 给表格添加索引
+alter table `table_name` add index `index_name`(`column_name`);
+2. 慢查询
+show variables like `slow_query_log`;
+	slow_query_log: off/on 0/1
+	slow_query_log_file:
+	long_query_time:	
+3. 存储过程
+delimiter ;;
+create procedure idata()
+begin
+  declare i int
+  set i=i+1
+  while(i<10000)do
+    insert into table_name values(i,i,i);
+    set i=i+1;
+  end while;
+end;;
+delimiter;
+4. case when使用详解
+select name, gender( case gender
+	when 1 then '男'
+	when 2 then 'nv'
+    else '未知'
+end) as '性别' from test_user;
+5. 查看表创建的详细信息
+show create table `table_name`;
+```
+
+
+
