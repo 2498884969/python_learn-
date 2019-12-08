@@ -469,10 +469,18 @@ delimiter ;;
     end while
   end;;
 delimiter ;
-
-
-
 ```
+
+### 19 `mysql`只查找一行也很慢
+
+```mysql
+-- 1.MySQL 5.7中如何定位DDL被阻塞的问题 
+https://www.cnblogs.com/ivictor/p/9460147.html
+-- 2. flash 的作用
+https://www.cnblogs.com/shc336/p/9796018.html
+```
+
+
 
 
 
@@ -622,11 +630,13 @@ drop event if exists event_second;
 alter event `event_name` disable/enable;
 14. 
 show events;
+15. 查看行锁
+select * from sys.innodb_lock_waits\G；
 ```
 
-# 6. 实验
+## 6. 实验
 
-## 1.索引失效
+### 1.索引失效
 
 ```mysql
 # 1. 创建tradelog表
