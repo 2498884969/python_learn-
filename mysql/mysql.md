@@ -480,10 +480,6 @@ https://www.cnblogs.com/ivictor/p/9460147.html
 https://www.cnblogs.com/shc336/p/9796018.html
 ```
 
-
-
-
-
 ## 3.名词
 
 ```shell
@@ -689,6 +685,15 @@ mysql>select l.operator from tradelog l , trade_detail d where d.tradeid=l.trade
 2.
 
 mysql> select d.* from tradelog l , trade_detail d where d.tradeid=CONVERT(l.tradeid USING utf8) and l.id=2; 
+```
+
+## 7. 高可用
+
+```mysql
+-- 1. 基于gtid的主从同步
+https://www.cnblogs.com/zyxnhr/p/11141234.html#_label2_2
+-- 2. 只同步部分库或者表
+https://blog.csdn.net/sj349781478/article/details/77731344
 ```
 
 
