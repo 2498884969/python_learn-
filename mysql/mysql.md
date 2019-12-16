@@ -480,6 +480,14 @@ https://www.cnblogs.com/ivictor/p/9460147.html
 https://www.cnblogs.com/shc336/p/9796018.html
 ```
 
+### 35.join 语句怎么优化
+
+```shell
+https://www.cnblogs.com/gaosf/p/11188964.html
+```
+
+
+
 ## 3.名词
 
 ```shell
