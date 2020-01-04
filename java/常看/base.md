@@ -15,5 +15,9 @@ https://www.cnblogs.com/antfin/p/10307245.html
 # 第八讲--Vector、ArrayList、LinkedList的区别
 https://blog.csdn.net/baidu_39334407/article/details/89062032
 https://blog.csdn.net/qq_38293564/article/details/80586040
+# 第九讲--对比Hashtable、HashMap、TreeMap有什么不同
+https://blog.csdn.net/woshimaxiao1/article/details/83661464
+# 第十讲--concurrentHashMap如何高效地实现线程安全
+https://blog.csdn.net/weixin_44460333/article/details/86770169
 ```
 
