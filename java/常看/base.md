@@ -61,3 +61,10 @@ https://blog.csdn.net/xyajia/article/details/80640643
 
 ```
 
+## 2. 日常练手
+
+```shell
+# 算法题
+https://github.com/gatieme/CodingInterviews
+```
+
