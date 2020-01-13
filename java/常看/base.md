@@ -66,5 +66,9 @@ https://blog.csdn.net/xyajia/article/details/80640643
 ```shell
 # 算法题
 https://github.com/gatieme/CodingInterviews
+# 设计模式
+http://www.jasongj.com/design_pattern/simple_factory/
+# 经典博客
+http://www.tianxiaobo.com/
 ```
 
